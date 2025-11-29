@@ -1,0 +1,31 @@
+name: Build iOS IPA
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Xcode project dependencies
+        run: |
+          cd tkubus_swiftui_project
+          xcodebuild -scheme TKUBusHelper -configuration Release -sdk iphoneos -archivePath build/TKUBusHelper.xcarchive archive
+
+      - name: Export IPA
+        run: |
+          cd tkubus_swiftui_project
+          xcodebuild -exportArchive \
+            -archivePath build/TKUBusHelper.xcarchive \
+            -exportPath build \
+            -exportOptionsPlist exportOptions.plist
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: TKU-Bus-Helper-IPA
+          path: tkubus_swiftui_project/build/*.ipa
